@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Decentralized Application</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      .contract-info,
+      .interaction-box {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .input-group {
+        margin-bottom: 10px;
+      }
+
+      label {
+        display: block;
+        font-weight: bold;
+      }
+
+      input {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 200px;
+      }
+
+      button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+
+      .output-box {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Decentralized Application</h1>
+
+      <div class="contract-info">
+        <h2>Contract Info</h2>
+        <p>Contract Address: <span id="contract-address"></span></p>
+        <p>Contract Balance: <span id="contract-balance"></span> ETH</p>
+      </div>
+
+      <div class="interaction-box">
+        <h2>Interact with Contract</h2>
+
+        <div class="input-group">
+          <label for="value-input">Value:</label>
+          <input type="number" id="value-input" placeholder="Enter value" />
+        </div>
+
+        <button id="deposit-btn">Deposit</button>
+        <button id="withdraw-btn">Withdraw</button>
+
+        <div class="output-box">
+          <h3>Output</h3>
+          <p id="output"></p>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+    <script>
+      const Web3 = require("web3");
+      const web3 = new Web3("https://mainnet.infura.io/v3/YOUR_PROJECT_ID");
+
+      const contractAddress = "0x1234567890123456789012345678901234567890";
+      const contractABI = [
+        // ABI of the smart contract goes here
+      ];
+
+      const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+      const contractAddressElement =
+        document.getElementById("contract-address");
+      const contractBalanceElement =
+        document.getElementById("contract-balance");
+      const valueInput = document.getElementById("value-input");
+      const depositBtn = document.getElementById("deposit-btn");
+      const withdrawBtn = document.getElementById("withdraw-btn");
+      const outputElement = document.getElementById("output");
+
+      contractAddressElement.textContent = contractAddress;
+
+      contract.methods.getBalance().call((error, balance) => {
+        if (error) {
+          console.error("Error:", error);
+          outputElement.textContent = "Error fetching contract balance";
+        } else {
+          const balanceInEther = web3.utils.fromWei(balance, "ether");
+          contractBalanceElement.textContent = balanceInEther;
+        }
+      });
+
+      depositBtn.addEventListener("click", () => {
+        const value = valueInput.value;
+        if (value) {
+          contract.methods.deposit().send(
+            {
+              from: "0x0123456789012345678901234567890123456789",
+              value: web3.utils.toWei(value, "ether"),
+            },
+            (error, transactionHash) => {
+              if (error) {
+                console.error("Error:", error);
+                outputElement.textContent = "Error depositing funds";
+              } else {
+                outputElement.textContent = `Transaction hash: ${transactionHash}`;
+              }
+            }
+          );
+        }
+      });
+
+      withdrawBtn.addEventListener("click", () => {
+        const value = valueInput.value;
+        if (value) {
+          contract.methods.withdraw(web3.utils.toWei(value, "ether")).send(
+            {
+              from: "0x0123456789012345678901234567890123456789",
+            },
+            (error, transactionHash) => {
+              if (error) {
+                console.error("Error:", error);
+                outputElement.textContent = "Error withdrawing funds";
+              } else {
+                outputElement.textContent = `Transaction hash: ${transactionHash}`;
+              }
+            }
+          );
+        }
+      });
+    </script>
+  </body>
+</html>
